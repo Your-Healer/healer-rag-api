@@ -1,4 +1,6 @@
 # main.py
+import platform
+import asyncio
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -10,15 +12,13 @@ from starlette.responses import JSONResponse
 from app.config import VectorDBType, debug_mode, RAG_HOST, RAG_PORT, CHUNK_SIZE, CHUNK_OVERLAP, PDF_EXTRACT_IMAGES, VECTOR_DB_TYPE, \
     LogMiddleware, logger
 from app.middleware import security_middleware
-from app.routes import document_routes, pgvector_routes
-from app.services.database import PSQLDatabase, ensure_custom_id_index_on_embedding
+from app.routes import langchain_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup logic goes here
-    if VECTOR_DB_TYPE == VectorDBType.PGVECTOR:
-        await PSQLDatabase.get_pool()  # Initialize the pool
-        await ensure_custom_id_index_on_embedding()
+    if platform.system() == "Windows":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     yield
 
@@ -42,9 +42,7 @@ app.state.CHUNK_OVERLAP = CHUNK_OVERLAP
 app.state.PDF_EXTRACT_IMAGES = PDF_EXTRACT_IMAGES
 
 # Include routers
-app.include_router(document_routes.router)
-if debug_mode:
-    app.include_router(router=pgvector_routes.router)
+app.include_router(router=langchain_routes.router)
 
 
 @app.exception_handler(RequestValidationError)
