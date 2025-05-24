@@ -1,7 +1,7 @@
 # tests/conftest.py
 import os
 
-from app.services.vector_store.async_pg_vector import AsyncPgVector
+# from app.services.vector_store.async_pg_vector import AsyncPgVector
 
 # Set environment variables early so config picks up test settings.
 os.environ["TESTING"] = "1"
@@ -12,13 +12,13 @@ os.environ["DSN"] = "dummy://"
 # -- Patch the vector store classes to bypass DB connection --
 
 # Do this *before* importing any app modules.
-from langchain_community.vectorstores.pgvector import PGVector
+from langchain_postgres import PGVector
 
 def dummy_post_init(self):
     # Skip extension creation
     pass
 
-AsyncPgVector.__post_init__ = dummy_post_init
+# AsyncPgVector.__post_init__ = dummy_post_init
 PGVector.__post_init__ = dummy_post_init
 
 from langchain_core.documents import Document
