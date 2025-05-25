@@ -14,7 +14,7 @@ if [[ -z "${TAG}" ]]; then
   TAG=latest
 fi
 
-LOCAL_DOCKER_IMG=librechat-rag-api:${TAG}
+LOCAL_DOCKER_IMG=healer-rag-api:${TAG}
 
 set -e
 
